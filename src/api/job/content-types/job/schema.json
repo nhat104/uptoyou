@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "jobs",
+  "info": {
+    "singularName": "job",
+    "pluralName": "jobs",
+    "displayName": "Job"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "image": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::image.image",
+      "inversedBy": "jobs"
+    },
+    "state": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "done",
+        "cancel"
+      ],
+      "default": "pending"
+    },
+    "assignment": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::assignment.assignment",
+      "inversedBy": "jobs"
+    }
+  }
+}

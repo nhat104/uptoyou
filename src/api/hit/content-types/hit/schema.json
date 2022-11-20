@@ -1,0 +1,71 @@
+{
+  "kind": "collectionType",
+  "collectionName": "hits",
+  "info": {
+    "singularName": "hit",
+    "pluralName": "hits",
+    "displayName": "HIT",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "jobType": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::type-job.type-job"
+    },
+    "description": {
+      "type": "component",
+      "repeatable": false,
+      "component": "hit-info.desc",
+      "required": true
+    },
+    "jobGuide": {
+      "type": "text",
+      "required": true
+    },
+    "workerAmount": {
+      "type": "integer",
+      "required": true,
+      "min": 1
+    },
+    "timeExpired": {
+      "type": "datetime",
+      "required": true
+    },
+    "timeWorkerKeep": {
+      "type": "integer",
+      "required": true,
+      "min": 1
+    },
+    "timeAutoPayWorker": {
+      "type": "integer"
+    },
+    "reward": {
+      "type": "integer",
+      "min": 100,
+      "required": true
+    },
+    "workerRequire": {
+      "type": "component",
+      "repeatable": false,
+      "component": "hit-info.requirement",
+      "required": true
+    },
+    "images": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::image.image",
+      "mappedBy": "inHit"
+    },
+    "task": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::task.task",
+      "inversedBy": "hit"
+    }
+  }
+}

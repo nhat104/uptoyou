@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_hit_info_descs",
+  "info": {
+    "displayName": "description",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "desc": {
+      "type": "text",
+      "required": true
+    },
+    "keywords": {
+      "type": "component",
+      "repeatable": true,
+      "component": "hit-info.keyword",
+      "required": true
+    }
+  }
+}

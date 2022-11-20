@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "type_jobs",
+  "info": {
+    "singularName": "type-job",
+    "pluralName": "type-jobs",
+    "displayName": "Type Job",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "parentJob": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::type-job.type-job",
+      "inversedBy": "subJobs"
+    },
+    "subJobs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::type-job.type-job",
+      "mappedBy": "parentJob"
+    },
+    "level": {
+      "type": "integer",
+      "required": true,
+      "max": 2,
+      "min": 1,
+      "default": 1
+    }
+  }
+}

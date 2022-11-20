@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_hit_info_keywords",
+  "info": {
+    "displayName": "keyword",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    }
+  }
+}
