@@ -5,12 +5,16 @@
  */
 
 module.exports = () => ({
-  findUser: async (username, email) => {
+  findUser: async (username, email, ctx) => {
     // Check if the username or email is already taken
     try {
       const user = await strapi.entityService.findMany(
         "plugin::users-permissions.user",
-        { filters: { $or: [{ username }, { email }] } }
+        {
+          fields: ["id", "username", "email", "password"],
+          filters: { $or: [{ username }, { email }] },
+          populate: ["role"],
+        }
       );
       return user;
     } catch (error) {
@@ -36,6 +40,7 @@ module.exports = () => ({
             blocked: false,
             confirmed: false,
             username,
+            provider: "local",
             email,
             password,
             role: { disconnect: [], connect: [{ id: roleId[role] }] },

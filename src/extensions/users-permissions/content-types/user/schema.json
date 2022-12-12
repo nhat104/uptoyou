@@ -63,21 +63,27 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "images": {
+    "money": {
+      "type": "biginteger",
+      "default": "0"
+    },
+    "jobs": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::image.image",
-      "mappedBy": "belongToRequester"
+      "target": "api::job.job",
+      "mappedBy": "doByWorker"
+    },
+    "batches": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::batch.batch",
+      "mappedBy": "requester"
     },
     "assignments": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::assignment.assignment",
       "mappedBy": "doByWorker"
-    },
-    "money": {
-      "type": "biginteger",
-      "default": "0"
     }
   }
 }

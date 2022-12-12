@@ -5,12 +5,43 @@
  */
 
 module.exports = {
+  login: async (ctx, next) => {
+    try {
+      const { identifier: username, password } = ctx.request.body;
+      const user = await strapi
+        .service("api::auth.auth")
+        .findUser(username, null, ctx);
+
+      if (!user.length) {
+        return ctx.badRequest("Username or Password are incorrect");
+      }
+
+      const validPassword = await strapi.plugins[
+        "users-permissions"
+      ].services.user.validatePassword(password, user[0].password);
+      if (!validPassword) {
+        return ctx.badRequest("Email or Password are incorrect");
+      }
+
+      try {
+        const jwt = await strapi.plugins[
+          "users-permissions"
+        ].services.jwt.issue({ id: user[0].id });
+        ctx.body = { jwt, user: { ...user[0], role: user[0].role.name } };
+      } catch (error) {
+        ctx.badRequest("Create jwt error", { moreDetails: error });
+      }
+    } catch (err) {
+      ctx.body;
+    }
+  },
+
   register: async (ctx, next) => {
     try {
       const { username, email, password, role } = ctx.request.body;
       const user = await strapi
         .service("api::auth.auth")
-        .findUser(username, email);
+        .findUser(username, email, ctx);
       if (user.length) {
         return ctx.conflict("Email or Username are already taken");
       }

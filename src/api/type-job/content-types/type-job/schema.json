@@ -17,24 +17,11 @@
       "required": true,
       "unique": true
     },
-    "parentJob": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::type-job.type-job",
-      "inversedBy": "subJobs"
-    },
-    "subJobs": {
+    "batches": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::type-job.type-job",
-      "mappedBy": "parentJob"
-    },
-    "level": {
-      "type": "integer",
-      "required": true,
-      "max": 2,
-      "min": 1,
-      "default": 1
+      "target": "api::batch.batch",
+      "mappedBy": "service"
     }
   }
 }

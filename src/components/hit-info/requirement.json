@@ -6,15 +6,17 @@
   },
   "options": {},
   "attributes": {
-    "master": {
-      "type": "text"
-    },
     "age": {
       "type": "integer",
       "required": false
     },
     "address": {
       "type": "string"
+    },
+    "master": {
+      "type": "boolean",
+      "default": false,
+      "required": false
     }
   }
 }

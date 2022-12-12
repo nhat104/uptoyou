@@ -20,18 +20,6 @@
         "images"
       ]
     },
-    "belongToRequester": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "plugin::users-permissions.user",
-      "inversedBy": "images"
-    },
-    "inHit": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::hit.hit",
-      "inversedBy": "images"
-    },
     "availableAmount": {
       "type": "integer",
       "required": true

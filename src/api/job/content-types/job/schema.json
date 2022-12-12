@@ -4,7 +4,8 @@
   "info": {
     "singularName": "job",
     "pluralName": "jobs",
-    "displayName": "Job"
+    "displayName": "Job",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -26,10 +27,10 @@
       ],
       "default": "pending"
     },
-    "assignment": {
+    "doByWorker": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::assignment.assignment",
+      "target": "plugin::users-permissions.user",
       "inversedBy": "jobs"
     }
   }

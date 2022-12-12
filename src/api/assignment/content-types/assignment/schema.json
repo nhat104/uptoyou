@@ -11,17 +11,27 @@
   },
   "pluginOptions": {},
   "attributes": {
+    "rewardPerAssignment": {
+      "type": "float",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "available",
+        "working",
+        "submitted",
+        "accepted",
+        "rejected",
+        "expired"
+      ],
+      "default": "available"
+    },
     "doByWorker": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "assignments"
-    },
-    "jobs": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::job.job",
-      "mappedBy": "assignment"
     }
   }
 }
