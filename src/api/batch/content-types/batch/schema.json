@@ -73,6 +73,12 @@
       "type": "component",
       "repeatable": true,
       "component": "questions.question"
+    },
+    "pack": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::image.image",
+      "mappedBy": "batch"
     }
   }
 }

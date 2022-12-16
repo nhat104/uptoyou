@@ -12,12 +12,6 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "image": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::image.image",
-      "inversedBy": "jobs"
-    },
     "state": {
       "type": "enumeration",
       "enum": [

@@ -24,11 +24,11 @@
       "type": "integer",
       "required": true
     },
-    "jobs": {
+    "batch": {
       "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::job.job",
-      "mappedBy": "image"
+      "relation": "manyToOne",
+      "target": "api::batch.batch",
+      "inversedBy": "pack"
     }
   }
 }
