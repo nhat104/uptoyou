@@ -26,6 +26,58 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
     return { data };
   },
 
+  async findOne(ctx) {
+    const { id } = ctx.params;
+    const batch = await strapi.entityService.findOne("api::batch.batch", id, {
+      populate: [
+        "workerRequire",
+        "service",
+        "requester",
+        "questions",
+        "questions.answers",
+      ],
+    });
+    const response = {
+      status: 200,
+      data: batch,
+    };
+    return response;
+  },
+
+  async find(ctx) {
+    const { query } = ctx;
+    query.populate = ["workerRequire", "requester", "service"];
+    if (!query.filters) {
+      query.filters = {};
+    }
+    query.filters.status = "working";
+
+    const { data, meta } = await super.find(ctx);
+    const res = [];
+    data.forEach((batch) => {
+      const attributes = batch.attributes;
+      const item = {
+        id: batch.id,
+        projectName: attributes.projectName,
+        title: attributes.title,
+        status: attributes.status,
+        description: attributes.description,
+        timeExpired: attributes.timeExpired,
+        timeAutoPayment: attributes.timeAutoPayment,
+        timeWorkerKeep: attributes.timeWorkerKeep,
+        HITQuantity: attributes.HITQuantity,
+        workerRequire: attributes.workerRequire,
+        requester: {
+          id: attributes.requester.data.id,
+          username: attributes.requester.data.attributes.username,
+        },
+        service: attributes.service.data.attributes.name,
+      };
+      res.push(item);
+    });
+    return { status: 200, data: res, meta };
+  },
+
   async publish(ctx) {
     const { id } = ctx.params;
     const { user } = ctx.state;
@@ -73,39 +125,5 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
       data: batches,
     };
     return response;
-  },
-
-  async find(ctx) {
-    const { query } = ctx;
-    query.populate = ["workerRequire", "requester", "service"];
-    if (!query.filters) {
-      query.filters = {};
-    }
-    query.filters.status = "working";
-
-    const { data, meta } = await super.find(ctx);
-    const res = [];
-    data.forEach((batch) => {
-      const attributes = batch.attributes;
-      const item = {
-        id: batch.id,
-        projectName: attributes.projectName,
-        title: attributes.title,
-        status: attributes.status,
-        description: attributes.description,
-        timeExpired: attributes.timeExpired,
-        timeAutoPayment: attributes.timeAutoPayment,
-        timeWorkerKeep: attributes.timeWorkerKeep,
-        HITQuantity: attributes.HITQuantity,
-        workerRequire: attributes.workerRequire,
-        requester: {
-          id: attributes.requester.data.id,
-          username: attributes.requester.data.attributes.username,
-        },
-        service: attributes.service.data.attributes.name,
-      };
-      res.push(item);
-    });
-    return { status: 200, data: res, meta };
   },
 }));
