@@ -10,19 +10,7 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
   async create(ctx) {
     const { user } = ctx.state;
     ctx.request.body.data.requester = user.id;
-    // const { data } = ctx.request.body;
-    // // const { requester } = data;
-    // // if (requester !== user.id) {
-    // //   return ctx.unauthorized("You are not allowed to create this batch");
-    // // }
-    // const batch = await strapi.entityService.create("api::batch.batch", data);
-    // const response = {
-    //   status: 200,
-    //   data: batch,
-    // };
-    // return response;
     const { data } = await super.create(ctx);
-
     return { data };
   },
 

@@ -28,7 +28,7 @@
     "workerRequire": {
       "type": "component",
       "repeatable": false,
-      "component": "hit-info.requirement"
+      "component": "batch-info.requirement"
     },
     "HITQuantity": {
       "type": "integer"

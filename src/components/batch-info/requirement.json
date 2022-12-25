@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_hit_info_requirements",
+  "info": {
+    "displayName": "requirement",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "age": {
+      "type": "integer",
+      "required": false
+    },
+    "address": {
+      "type": "string"
+    },
+    "master": {
+      "type": "boolean",
+      "default": false,
+      "required": false
+    }
+  }
+}

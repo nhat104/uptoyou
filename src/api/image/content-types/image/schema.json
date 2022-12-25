@@ -22,7 +22,7 @@
     },
     "availableAmount": {
       "type": "integer",
-      "required": true
+      "required": false
     },
     "batch": {
       "type": "relation",

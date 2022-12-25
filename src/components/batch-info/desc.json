@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_hit_info_descs",
+  "info": {
+    "displayName": "description",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "projectName": {
+      "type": "string",
+      "required": true
+    },
+    "title": {
+      "type": "text",
+      "required": true
+    },
+    "keywords": {
+      "type": "component",
+      "repeatable": true,
+      "component": "batch-info.keyword",
+      "required": false
+    },
+    "desc": {
+      "type": "text"
+    }
+  }
+}
