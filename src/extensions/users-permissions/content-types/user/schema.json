@@ -84,6 +84,12 @@
       "relation": "oneToMany",
       "target": "api::assignment.assignment",
       "mappedBy": "doByWorker"
+    },
+    "hits": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::hit.hit",
+      "mappedBy": "user"
     }
   }
 }

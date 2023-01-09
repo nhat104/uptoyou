@@ -16,11 +16,6 @@
       "type": "text",
       "required": true
     },
-    "assignmentPerHIT": {
-      "type": "integer",
-      "required": true,
-      "min": 1
-    },
     "reward": {
       "type": "integer",
       "min": 100,
@@ -29,11 +24,32 @@
     "status": {
       "type": "enumeration",
       "enum": [
-        "working",
-        "closed",
+        "available",
+        "onworking",
+        "submitted",
+        "accepted",
+        "rejected",
         "expired"
       ],
-      "default": "working"
+      "default": "available"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "hits"
+    },
+    "batch": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::batch.batch",
+      "inversedBy": "hits"
+    },
+    "image": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::image.image",
+      "inversedBy": "hit"
     }
   }
 }

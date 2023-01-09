@@ -20,11 +20,6 @@
       "type": "datetime",
       "required": true
     },
-    "timeAutoPayment": {
-      "type": "integer",
-      "required": true,
-      "min": 0
-    },
     "workerRequire": {
       "type": "component",
       "repeatable": false,
@@ -78,6 +73,17 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::image.image",
+      "mappedBy": "batch"
+    },
+    "autoApprove": {
+      "type": "boolean",
+      "default": true,
+      "required": false
+    },
+    "hits": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::hit.hit",
       "mappedBy": "batch"
     }
   }

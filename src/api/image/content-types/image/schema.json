@@ -29,6 +29,12 @@
       "relation": "manyToOne",
       "target": "api::batch.batch",
       "inversedBy": "pack"
+    },
+    "hit": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::hit.hit",
+      "inversedBy": "image"
     }
   }
 }
