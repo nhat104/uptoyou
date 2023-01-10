@@ -12,27 +12,6 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "jobGuide": {
-      "type": "text",
-      "required": true
-    },
-    "reward": {
-      "type": "integer",
-      "min": 100,
-      "required": true
-    },
-    "status": {
-      "type": "enumeration",
-      "enum": [
-        "available",
-        "onworking",
-        "submitted",
-        "accepted",
-        "rejected",
-        "expired"
-      ],
-      "default": "available"
-    },
     "user": {
       "type": "relation",
       "relation": "manyToOne",
@@ -45,11 +24,12 @@
       "target": "api::batch.batch",
       "inversedBy": "hits"
     },
-    "image": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::image.image",
-      "inversedBy": "hit"
+    "images": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": true
     }
   }
 }

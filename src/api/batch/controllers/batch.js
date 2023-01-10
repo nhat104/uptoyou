@@ -16,6 +16,7 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
 
   async findOne(ctx) {
     const { id } = ctx.params;
+
     const batch = await strapi.entityService.findOne("api::batch.batch", id, {
       populate: [
         "workerRequire",
@@ -53,7 +54,6 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
         timeExpired: attributes.timeExpired,
         timeAutoPayment: attributes.timeAutoPayment,
         timeWorkerKeep: attributes.timeWorkerKeep,
-        HITQuantity: attributes.HITQuantity,
         workerRequire: attributes.workerRequire,
         requester: {
           id: attributes.requester.data.id,
@@ -69,6 +69,7 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
   async publish(ctx) {
     const { id } = ctx.params;
     const { user } = ctx.state;
+
     const batch = await strapi.entityService.findOne("api::batch.batch", id, {
       populate: ["requester"],
     });
@@ -79,13 +80,36 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
       "api::batch.batch",
       id,
       {
-        fields: ["id", "projectName", "status"],
+        fields: ["id", "projectName", "status", "imagePerHIT"],
+        populate: ["pack"],
         data: { status: "working" },
       }
     );
+
+    if (updatedBatch.imagePerHIT) {
+      // split images to sub array of image
+      const chunk = (arr, size) =>
+        Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+          arr.slice(i * size, i * size + size)
+        );
+      const pack = updatedBatch.pack;
+      const chunkedImages = chunk(pack, updatedBatch.imagePerHIT);
+      chunkedImages.forEach(async (images) => {
+        ctx.request.body.data = {
+          ...ctx.request.body.data,
+          images,
+        };
+
+        await strapi.controller("api::hit.hit").create(ctx);
+      });
+    }
+
     const response = {
       status: 200,
-      data: updatedBatch,
+      data: {
+        ...updatedBatch,
+        pack: updatedBatch.pack.map((image) => image.url),
+      },
     };
     return response;
   },

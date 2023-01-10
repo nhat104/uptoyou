@@ -25,9 +25,6 @@
       "repeatable": false,
       "component": "batch-info.requirement"
     },
-    "HITQuantity": {
-      "type": "integer"
-    },
     "projectName": {
       "type": "string",
       "required": true,
@@ -54,10 +51,6 @@
       "default": "unpublished",
       "required": true
     },
-    "timeWorkerKeep": {
-      "type": "integer",
-      "required": true
-    },
     "requester": {
       "type": "relation",
       "relation": "manyToOne",
@@ -69,22 +62,30 @@
       "repeatable": true,
       "component": "questions.question"
     },
-    "pack": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::image.image",
-      "mappedBy": "batch"
-    },
-    "autoApprove": {
-      "type": "boolean",
-      "default": true,
-      "required": false
-    },
     "hits": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::hit.hit",
       "mappedBy": "batch"
+    },
+    "autoPayment": {
+      "type": "boolean",
+      "default": true
+    },
+    "reward": {
+      "type": "biginteger"
+    },
+    "imagePerHIT": {
+      "type": "integer",
+      "required": true
+    },
+    "pack": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
     }
   }
 }
