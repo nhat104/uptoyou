@@ -24,11 +24,15 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
         "requester",
         "questions",
         "questions.answers",
+        "pack",
       ],
     });
     const response = {
       status: 200,
-      data: batch,
+      data: {
+        ...batch,
+        pack: batch.pack ? batch.pack.map((image) => image.url) : null,
+      },
     };
     return response;
   },

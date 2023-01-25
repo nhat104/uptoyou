@@ -7,18 +7,63 @@
 const { createCoreController } = require("@strapi/strapi").factories;
 
 module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
-  async publish(ctx) {
+  async apply(ctx) {
     const { id } = ctx.params;
     const { user } = ctx.state;
     const hit = await strapi.entityService.findOne("api::hit.hit", id, {
-      populate: ["requester"],
+      populate: ["user"],
     });
-    if (hit.requester.id !== user.id) {
-      return ctx.unauthorized("You are not allowed to publish this hit");
+    if (!hit) {
+      return ctx.notFound("Hit not found");
+    }
+    if (hit.user) {
+      return ctx.badRequest("This HIT has been applied");
     }
     const updatedHit = await strapi.entityService.update("api::hit.hit", id, {
-      fields: ["id", "publish", "createdAt", "updatedAt"],
-      data: { publish: !hit.publish },
+      populate: ["user"],
+      data: { user: user.id },
+    });
+    const response = {
+      status: 200,
+      data: {
+        id: updatedHit.id,
+        user: {
+          id: updatedHit.user.id,
+          username: updatedHit.user.username,
+        },
+      },
+    };
+    return response;
+  },
+
+  async submit(ctx) {
+    const { id } = ctx.params;
+    const { user } = ctx.state;
+    const { answers } = ctx.request.body;
+    const hit = await strapi.entityService.findOne("api::hit.hit", id, {
+      populate: ["batch", "user"],
+    });
+    if (!answers) {
+      return ctx.badRequest("Answer is required");
+    }
+    if (!hit) {
+      return ctx.notFound("Hit not found");
+    }
+    if (!hit.user) {
+      return ctx.badRequest("This HIT has not been applied");
+    }
+    if (hit.user.id !== user.id) {
+      return ctx.badRequest("You are not the worker of this HIT");
+    }
+    // console.log("hit", hit);
+    // const batch = await strapi.entityService.findOne(
+    //   "api::batch.batch",
+    //   hit.batch.id,
+    //   { populate: ["questions", "questions.answers"] }
+    // );
+    // console.log("batch", batch);
+    const updatedHit = await strapi.entityService.update("api::hit.hit", id, {
+      data: { answers },
     });
     const response = {
       status: 200,
@@ -27,27 +72,34 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
     return response;
   },
 
-  async hitsByRequester(ctx) {
-    const { query } = ctx;
-    const { user } = ctx.state;
-    if (query.populate) {
-      if (!query.populate.includes("requester")) {
-        query.populate += ",requester";
-      }
-    } else {
-      query.populate = "requester";
-    }
-    console.log("query", query);
-    const hits = await strapi.entityService.findMany("api::hit.hit", {
-      ...query,
-      filters: {
-        ...query.filters,
-        requester: user.id,
-      },
+  async findOne(ctx) {
+    const { id } = ctx.params;
+
+    const hit = await strapi.entityService.findOne("api::hit.hit", id, {
+      populate: ["batch", "batch.questions", "batch.questions.answers"],
     });
+
+    if (!hit) {
+      return ctx.notFound("Hit not found");
+    }
+
+    const answers = JSON.parse(hit.answers);
+    const batch = {
+      ...hit.batch,
+      questions: hit.batch.questions.map((question, qIdx) => ({
+        title: question.title,
+        type: question.type,
+        select:
+          question.answers && question.answers
+            ? question.answers.map((answer) => answer.name)
+            : null,
+        answer: (answers && answers[qIdx]) || "",
+      })),
+    };
+
     const response = {
       status: 200,
-      data: hits,
+      data: { id: hit.id, batch },
     };
     return response;
   },

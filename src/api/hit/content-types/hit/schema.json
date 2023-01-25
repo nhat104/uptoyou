@@ -25,11 +25,15 @@
       "inversedBy": "hits"
     },
     "images": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
       "allowedTypes": [
         "images"
-      ],
-      "type": "media",
-      "multiple": true
+      ]
+    },
+    "answers": {
+      "type": "string"
     }
   }
 }

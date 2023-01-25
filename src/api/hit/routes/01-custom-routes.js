@@ -2,13 +2,13 @@ module.exports = {
   routes: [
     {
       method: "GET",
-      path: "/hits/:id/publish",
-      handler: "hit.publish",
+      path: "/hits/:id/apply",
+      handler: "hit.apply",
     },
     {
-      method: "GET",
-      path: "/hits-by-requester",
-      handler: "hit.hitsByRequester",
+      method: "POST",
+      path: "/hits/:id/submit",
+      handler: "hit.submit",
     },
   ],
 };
