@@ -65,7 +65,7 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
           email: batch?.requester?.email || "",
         },
         pack: batch.pack ? batch.pack.map((image) => image.url) : [],
-        questions: batch.questions.map((question, qIdx) => ({
+        questions: batch.questions.map((question) => ({
           title: question.title,
           type: question.type,
           select:
@@ -128,7 +128,6 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
   },
 
   async publish(ctx) {
-    const { id } = ctx.params;
     const { user } = ctx.state;
     const { data } = ctx.request.body;
 
@@ -136,9 +135,13 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
       return ctx.badRequest("Batch id is required");
     }
 
-    const batch = await strapi.entityService.findOne("api::batch.batch", id, {
-      populate: ["requester"],
-    });
+    const batch = await strapi.entityService.findOne(
+      "api::batch.batch",
+      data.batch,
+      {
+        populate: ["requester"],
+      }
+    );
     if (batch.requester.id !== user.id) {
       return ctx.unauthorized("You are not allowed to publish this batch");
     }

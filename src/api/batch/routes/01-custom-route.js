@@ -2,7 +2,7 @@ module.exports = {
   routes: [
     {
       method: "POST",
-      path: "/batches/:id/publish",
+      path: "/batches/publish",
       handler: "batch.publish",
     },
     {
