@@ -145,12 +145,12 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
     if (batch.requester.id !== user.id) {
       return ctx.unauthorized("You are not allowed to publish this batch");
     }
-    if (batch.status !== "working") {
+    if (batch.status === "working") {
       return ctx.badRequest("Batch was already published");
     }
     const updatedBatch = await strapi.entityService.update(
       "api::batch.batch",
-      id,
+      data.batch,
       {
         fields: ["id", "projectName", "status", "imagePerHIT"],
         populate: ["pack"],
