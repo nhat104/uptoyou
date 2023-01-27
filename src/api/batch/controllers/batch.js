@@ -25,13 +25,70 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
         "questions",
         "questions.answers",
         "pack",
+        "hits",
+        "hits.user",
       ],
     });
+
+    if (!batch) {
+      return ctx.notFound("Batch not found");
+    }
+
+    const hitCount = batch.hits.length;
+    const hitWorking = batch.hits.filter(
+      (hit) => hit.status === "working"
+    ).length;
+    const hitApproved = batch.hits.filter(
+      (hit) => hit.status === "accepted"
+    ).length;
+    const hitRejected = batch.hits.filter(
+      (hit) => hit.status === "rejected"
+    ).length;
+
     const response = {
       status: 200,
       data: {
         ...batch,
-        pack: batch.pack ? batch.pack.map((image) => image.url) : null,
+        id: batch.id,
+        projectName: batch.projectName,
+        title: batch.title,
+        status: batch.status,
+        service: batch?.service?.name || "",
+        description: batch.description,
+        timeExpired: batch.timeExpired,
+        workerRequire: batch.workerRequire,
+        imagePerHIT: batch.imagePerHIT,
+        reward: batch.reward,
+        requester: {
+          id: batch?.requester?.id || "",
+          username: batch?.requester?.username || "",
+          email: batch?.requester?.email || "",
+        },
+        pack: batch.pack ? batch.pack.map((image) => image.url) : [],
+        questions: batch.questions.map((question, qIdx) => ({
+          title: question.title,
+          type: question.type,
+          select:
+            question.answers && question.answers
+              ? question.answers.map((answer) => answer.name)
+              : null,
+        })),
+        hits: batch.hits.map((hit) => ({
+          id: hit.id,
+          status: hit.status,
+          answers: hit.answers || "",
+          user: {
+            id: hit?.user?.id || "",
+            username: hit?.user?.username || "",
+            email: hit?.user?.email || "",
+          },
+        })),
+        result: {
+          hitWorking,
+          hitApproved,
+          hitRejected,
+          progress: Math.round((hitApproved / hitCount) * 100),
+        },
       },
     };
     return response;
@@ -73,12 +130,20 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
   async publish(ctx) {
     const { id } = ctx.params;
     const { user } = ctx.state;
+    const { data } = ctx.request.body;
+
+    if (!data.batch) {
+      return ctx.badRequest("Batch id is required");
+    }
 
     const batch = await strapi.entityService.findOne("api::batch.batch", id, {
       populate: ["requester"],
     });
     if (batch.requester.id !== user.id) {
       return ctx.unauthorized("You are not allowed to publish this batch");
+    }
+    if (batch.status !== "working") {
+      return ctx.badRequest("Batch was already published");
     }
     const updatedBatch = await strapi.entityService.update(
       "api::batch.batch",
@@ -126,15 +191,36 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
         query.populate += ",requester";
       }
     } else {
-      query.populate = "requester";
+      query.populate = "requester,hits";
     }
     console.log("query", query);
-    const batches = await strapi.entityService.findMany("api::batch.batch", {
+    let batches = await strapi.entityService.findMany("api::batch.batch", {
       ...query,
       filters: {
         ...query.filters,
         requester: user.id,
       },
+    });
+    batches = batches.map((batch) => {
+      const hitCount = batch.hits.length;
+      const hitWorking = batch.hits.filter(
+        (hit) => hit.status === "working"
+      ).length;
+      const hitApproved = batch.hits.filter(
+        (hit) => hit.status === "accepted"
+      ).length;
+      const hitRejected = batch.hits.filter(
+        (hit) => hit.status === "rejected"
+      ).length;
+      return {
+        ...batch,
+        result: {
+          hitWorking,
+          hitApproved,
+          hitRejected,
+          progress: Math.round((hitApproved / hitCount) * 100),
+        },
+      };
     });
     const response = {
       status: 200,

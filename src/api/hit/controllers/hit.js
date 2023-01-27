@@ -7,6 +7,60 @@
 const { createCoreController } = require("@strapi/strapi").factories;
 
 module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
+  async findOne(ctx) {
+    const { id } = ctx.params;
+
+    const hit = await strapi.entityService.findOne("api::hit.hit", id, {
+      populate: [
+        "batch",
+        "images",
+        "batch.questions",
+        "batch.questions.answers",
+      ],
+    });
+
+    if (!hit) {
+      return ctx.notFound("Hit not found");
+    }
+
+    const answers = JSON.parse(hit.answers);
+    const batch = {
+      ...hit.batch,
+      questions: hit.batch.questions.map((question, qIdx) => ({
+        title: question.title,
+        type: question.type,
+        select:
+          question.answers && question.answers
+            ? question.answers.map((answer) => answer.name)
+            : null,
+        answer: (answers && answers[qIdx]) || "",
+      })),
+    };
+
+    const response = {
+      status: 200,
+      data: {
+        id: hit.id,
+        images: hit.images ? hit.images.map((image) => image.url) : [],
+        batch,
+      },
+    };
+    return response;
+  },
+
+  async find(ctx) {
+    const { query } = ctx;
+    query.populate = "*";
+    if (!query.filters) {
+      query.filters = {};
+    }
+    // query.filters.publish = true;
+
+    const { data, meta } = await super.find(ctx);
+
+    return { status: 200, data, meta };
+  },
+
   async apply(ctx) {
     const { id } = ctx.params;
     const { user } = ctx.state;
@@ -21,16 +75,14 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
     }
     const updatedHit = await strapi.entityService.update("api::hit.hit", id, {
       populate: ["user"],
-      data: { user: user.id },
+      data: { user: user.id, status: "working" },
     });
     const response = {
       status: 200,
       data: {
         id: updatedHit.id,
-        user: {
-          id: updatedHit.user.id,
-          username: updatedHit.user.username,
-        },
+        status: updatedHit.status,
+        user: { id: updatedHit.user.id, username: updatedHit.user.username },
       },
     };
     return response;
@@ -63,7 +115,7 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
     // );
     // console.log("batch", batch);
     const updatedHit = await strapi.entityService.update("api::hit.hit", id, {
-      data: { answers },
+      data: { answers, status: "submitted" },
     });
     const response = {
       status: 200,
@@ -72,48 +124,98 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
     return response;
   },
 
-  async findOne(ctx) {
-    const { id } = ctx.params;
+  async accept(ctx) {
+    const { user } = ctx.state;
+    const { hits } = ctx.request.body;
 
-    const hit = await strapi.entityService.findOne("api::hit.hit", id, {
-      populate: ["batch", "batch.questions", "batch.questions.answers"],
-    });
-
-    if (!hit) {
-      return ctx.notFound("Hit not found");
+    if (!hits) {
+      return ctx.badRequest("Hits is required");
     }
 
-    const answers = JSON.parse(hit.answers);
-    const batch = {
-      ...hit.batch,
-      questions: hit.batch.questions.map((question, qIdx) => ({
-        title: question.title,
-        type: question.type,
-        select:
-          question.answers && question.answers
-            ? question.answers.map((answer) => answer.name)
-            : null,
-        answer: (answers && answers[qIdx]) || "",
-      })),
-    };
+    const hitAccepted = [];
 
-    const response = {
-      status: 200,
-      data: { id: hit.id, batch },
-    };
-    return response;
+    for (const hitId of hits) {
+      const hit = await strapi.entityService.findOne("api::hit.hit", hitId, {
+        populate: ["user", "batch.requester"],
+      });
+
+      if (!hit) {
+        return ctx.notFound(`Hit with id ${hitId} not found`);
+      }
+
+      if (user.id !== hit.batch.requester.id) {
+        return ctx.badRequest(
+          `You are not the requester of hit with id ${hitId}`
+        );
+      }
+
+      if (hit.status !== "submitted") {
+        return ctx.badRequest(
+          `Hit status with id ${hitId} is ${hit.status}, not submitted`
+        );
+      }
+
+      hitAccepted.push(hitId);
+    }
+
+    if (hits.length === hitAccepted.length) {
+      hitAccepted.forEach(async (hitId) => {
+        await strapi.entityService.update("api::hit.hit", hitId, {
+          data: { status: "accepted" },
+        });
+      });
+    }
+
+    return { status: 200, message: "Accepted", data: hits };
   },
 
-  async find(ctx) {
-    const { query } = ctx;
-    query.populate = "*";
-    if (!query.filters) {
-      query.filters = {};
+  async reject(ctx) {
+    const { user } = ctx.state;
+    const { hits } = ctx.request.body;
+
+    if (!hits) {
+      return ctx.badRequest("Hits is required");
     }
-    query.filters.publish = true;
 
-    const { data, meta } = await super.find(ctx);
+    const hitRejected = [];
 
-    return { status: 200, data, meta };
+    for (const hitId of hits) {
+      const hit = await strapi.entityService.findOne("api::hit.hit", hitId, {
+        populate: ["user", "batch.requester"],
+      });
+
+      if (!hit) {
+        return ctx.notFound(`Hit with id ${hitId} not found`);
+      }
+
+      if (user.id !== hit.batch.requester.id) {
+        return ctx.badRequest(
+          `You are not the requester of hit with id ${hitId}`
+        );
+      }
+
+      if (hit.status === "accepted") {
+        return ctx.badRequest(
+          `Hit status with id ${hitId} is accepted, cannot reject`
+        );
+      }
+      if (hit.status !== "submitted") {
+        return ctx.badRequest(
+          `Hit status with id ${hitId} is ${hit.status}, not submitted`
+        );
+      }
+
+      hitRejected.push(hitId);
+    }
+
+    if (hits.length === hitRejected.length) {
+      hitRejected.forEach(async (hitId) => {
+        await strapi.entityService.update("api::hit.hit", hitId, {
+          data: { status: "rejected" },
+        });
+      });
+    }
+
+    return { status: 200, message: "Rejected", data: hits };
   },
 }));

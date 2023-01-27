@@ -10,5 +10,15 @@ module.exports = {
       path: "/hits/:id/submit",
       handler: "hit.submit",
     },
+    {
+      method: "POST",
+      path: "/hits/accept",
+      handler: "hit.accept",
+    },
+    {
+      method: "POST",
+      path: "/hits/reject",
+      handler: "hit.reject",
+    },
   ],
 };

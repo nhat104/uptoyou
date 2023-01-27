@@ -34,6 +34,19 @@
     },
     "answers": {
       "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "available",
+        "working",
+        "submitted",
+        "accepted",
+        "rejected",
+        "expired"
+      ],
+      "default": "available",
+      "required": true
     }
   }
 }
