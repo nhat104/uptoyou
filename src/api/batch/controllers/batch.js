@@ -53,7 +53,11 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
         projectName: batch.projectName,
         title: batch.title,
         status: batch.status,
-        service: batch?.service?.name || "",
+        // service: batch?.service?.name || "",
+        service: {
+          id: batch?.service?.id || "",
+          name: batch?.service?.name || "",
+        },
         description: batch.description,
         timeExpired: batch.timeExpired,
         workerRequire: batch.workerRequire,

@@ -50,10 +50,10 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
 
   async find(ctx) {
     const { query } = ctx;
-    query.populate = "*";
-    if (!query.filters) {
-      query.filters = {};
-    }
+    query.populate = ["*", "batch.workerRequire"];
+    // if (!query.filters) {
+    //   query.filters = {};
+    // }
     // query.filters.publish = true;
 
     const { data, meta } = await super.find(ctx);
