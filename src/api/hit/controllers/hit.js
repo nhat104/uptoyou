@@ -29,10 +29,7 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
       questions: hit.batch.questions.map((question, qIdx) => ({
         title: question.title,
         type: question.type,
-        select:
-          question.answers && question.answers
-            ? question.answers.map((answer) => answer.name)
-            : null,
+        select: question.answers,
         answer: (answers && answers[qIdx]) || "",
       })),
     };

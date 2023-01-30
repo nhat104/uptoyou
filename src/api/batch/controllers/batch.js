@@ -72,10 +72,7 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
         questions: batch.questions.map((question) => ({
           title: question.title,
           type: question.type,
-          select:
-            question.answers && question.answers
-              ? question.answers.map((answer) => answer.name)
-              : null,
+          select: question.answers,
         })),
         hits: batch.hits.map((hit) => ({
           id: hit.id,
