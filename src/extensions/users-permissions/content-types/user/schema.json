@@ -90,6 +90,18 @@
       "relation": "oneToMany",
       "target": "api::hit.hit",
       "mappedBy": "user"
+    },
+    "name": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "age": {
+      "type": "integer"
+    },
+    "phone": {
+      "type": "string"
     }
   }
 }

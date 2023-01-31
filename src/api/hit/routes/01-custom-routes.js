@@ -20,5 +20,10 @@ module.exports = {
       path: "/hits/reject",
       handler: "hit.reject",
     },
+    {
+      method: "GET",
+      path: "/hits/by-worker",
+      handler: "hit.hitByWorker",
+    },
   ],
 };

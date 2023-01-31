@@ -152,14 +152,27 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
         );
       }
 
-      hitAccepted.push(hitId);
+      hitAccepted.push({
+        id: hitId,
+        user: hit.user.id,
+        reward: hit.batch?.reward || 0,
+      });
     }
 
     if (hits.length === hitAccepted.length) {
-      hitAccepted.forEach(async (hitId) => {
-        await strapi.entityService.update("api::hit.hit", hitId, {
+      hitAccepted.forEach(async (hit) => {
+        await strapi.entityService.update("api::hit.hit", hit.id, {
           data: { status: "accepted" },
         });
+        const user = await strapi.entityService.findOne(
+          "plugin::users-permissions.user",
+          hit.user
+        );
+        await strapi.entityService.update(
+          "plugin::users-permissions.user",
+          hit.user,
+          { data: { money: user.money + hit.reward } }
+        );
       });
     }
 
@@ -214,5 +227,23 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
     }
 
     return { status: 200, message: "Rejected", data: hits };
+  },
+
+  async hitByWorker(ctx) {
+    // const { id } = ctx.params;
+    const { user } = ctx.state;
+    // const { populate } = ctx.query;
+    const hits = await strapi.entityService.findMany("api::hit.hit", {
+      // populate: ["user"],
+      filters: {
+        user: user.id,
+        status: { $in: ["working", "submitted", "accepted", "rejected"] },
+      },
+    });
+    const response = {
+      status: 200,
+      data: hits,
+    };
+    return response;
   },
 }));
