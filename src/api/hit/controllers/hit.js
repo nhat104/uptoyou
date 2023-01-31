@@ -48,6 +48,9 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
   async find(ctx) {
     const { query } = ctx;
     const { user } = ctx.state;
+    if (!user.age || !user.address) {
+      return ctx.badRequest("Please update your age and address in profile");
+    }
     query.populate = ["*", "batch.workerRequire"];
     // if (!query.filters) {
     //   query.filters = {};
