@@ -72,7 +72,10 @@ module.exports = {
     });
 
     const finishedHits = hitsByWorker.filter(
-      (hit) => hit.status === "accepted" || hit.status === "rejected"
+      (hit) =>
+        hit.status === "accepted" ||
+        hit.status === "rejected" ||
+        hit.status === "submitted"
     );
     const acceptedHits = hitsByWorker.filter(
       (hit) => hit.status === "accepted"
@@ -80,14 +83,19 @@ module.exports = {
     const pendingHits = hitsByWorker.filter(
       (hit) => hit.status === "submitted"
     );
+    const rejectedHits = hitsByWorker.filter(
+      (hit) => hit.status === "rejected"
+    );
 
     const response = {
       status: 200,
       data: {
-        approvedRate: acceptedHits.length / finishedHits.length,
+        approvedRate: Math.round(
+          (acceptedHits.length / finishedHits.length) * 100
+        ),
         approved: acceptedHits.length,
         pendingHIT: pendingHits.length,
-        rejected: finishedHits.length - acceptedHits.length,
+        rejected: rejectedHits.length,
         availableEarn: user.money,
         totalEarn: user.totalMoney,
       },
