@@ -3,3 +3,5 @@ build
 node_modules
 .env
 .strapi-updater.json
+package-lock.json
+yarn.lock
