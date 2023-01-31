@@ -168,10 +168,8 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
         );
       }
 
-      if (hit.status !== "submitted") {
-        return ctx.badRequest(
-          `Hit status with id ${hitId} is ${hit.status}, not submitted`
-        );
+      if (hit.status !== "submitted" && hit.status !== "accept") {
+        return ctx.badRequest(`Hit status with id ${hitId} is ${hit.status}.`);
       }
 
       hitAccepted.push({
@@ -236,7 +234,7 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
           `Hit status with id ${hitId} is accepted, cannot reject`
         );
       }
-      if (hit.status !== "submitted") {
+      if (hit.status !== "submitted" && hit.status !== "accept") {
         return ctx.badRequest(
           `Hit status with id ${hitId} is ${hit.status}, not submitted`
         );
