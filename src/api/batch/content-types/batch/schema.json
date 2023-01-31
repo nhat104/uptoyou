@@ -45,6 +45,7 @@
       "enum": [
         "unpublished",
         "working",
+        "finished",
         "closed",
         "expired"
       ],
