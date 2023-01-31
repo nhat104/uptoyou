@@ -62,8 +62,10 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
       if (age && user.age < age) {
         workable = false;
       }
-      if (address && !user.address.includes(address)) {
-        workable = false;
+      if (address) {
+        if (!user.address || !user.address.includes(address)) {
+          workable = false;
+        }
       }
       return {
         id: hit.id,
