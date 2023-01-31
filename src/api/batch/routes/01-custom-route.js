@@ -7,6 +7,11 @@ module.exports = {
     },
     {
       method: "GET",
+      path: "/batches/:id/close",
+      handler: "batch.close",
+    },
+    {
+      method: "GET",
       path: "/batches-by-requester",
       handler: "batch.batchesByRequester",
     },

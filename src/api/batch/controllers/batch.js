@@ -53,7 +53,6 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
         projectName: batch.projectName,
         title: batch.title,
         status: batch.status,
-        // service: batch?.service?.name || "",
         service: {
           id: batch?.service?.id || "",
           name: batch?.service?.name || "",
@@ -63,6 +62,7 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
         workerRequire: batch.workerRequire,
         imagePerHIT: batch.imagePerHIT,
         reward: batch.reward,
+        estimateCost: batch.hits.length * batch.reward,
         requester: {
           id: batch?.requester?.id || "",
           username: batch?.requester?.username || "",
@@ -149,6 +149,9 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
     if (batch.status === "working") {
       return ctx.badRequest("Batch was already published");
     }
+    if (batch.status === "closed") {
+      return ctx.badRequest("Batch was closed");
+    }
     const updatedBatch = await strapi.entityService.update(
       "api::batch.batch",
       data.batch,
@@ -182,6 +185,50 @@ module.exports = createCoreController("api::batch.batch", ({ strapi }) => ({
       data: {
         ...updatedBatch,
         pack: updatedBatch.pack.map((image) => image.url),
+      },
+    };
+    return response;
+  },
+
+  async close(ctx) {
+    const { id } = ctx.params;
+    const { user } = ctx.state;
+
+    const batch = await strapi.entityService.findOne("api::batch.batch", id, {
+      populate: ["hits", "requester"],
+    });
+
+    if (!batch) {
+      return ctx.notFound("Batch not found");
+    }
+    if (batch.requester.id !== user.id) {
+      return ctx.unauthorized("You are not allowed to stop this batch");
+    }
+    if (batch.status === "closed") {
+      return ctx.badRequest("Batch was already closed");
+    }
+
+    if (batch.hits && batch.hits.length) {
+      batch.hits.forEach(async (hit) => {
+        if (!hit.answers) {
+          await strapi.entityService.delete("api::hit.hit", hit.id);
+        }
+      });
+    }
+
+    const updatedBatch = await strapi.entityService.update(
+      "api::batch.batch",
+      id,
+      {
+        fields: ["id", "status"],
+        data: { status: "closed" },
+      }
+    );
+
+    const response = {
+      status: 200,
+      data: {
+        ...updatedBatch,
       },
     };
     return response;
