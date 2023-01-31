@@ -47,15 +47,35 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
 
   async find(ctx) {
     const { query } = ctx;
+    const { user } = ctx.state;
     query.populate = ["*", "batch.workerRequire"];
     // if (!query.filters) {
     //   query.filters = {};
     // }
     // query.filters.publish = true;
-
     const { data, meta } = await super.find(ctx);
+    const hits = data.map((hit) => {
+      const { batch, ...rest } = hit.attributes;
+      const { workerRequire, ...restBatch } = batch.data.attributes;
+      let workable = true;
+      const { age, address } = workerRequire;
+      if (age && user.age < age) {
+        workable = false;
+      }
+      if (address && !user.address.includes(address)) {
+        workable = false;
+      }
+      return {
+        id: hit.id,
+        ...rest,
+        batch: {
+          ...restBatch,
+          workable,
+        },
+      };
+    });
 
-    return { status: 200, data, meta };
+    return { status: 200, data: hits, meta };
   },
 
   async apply(ctx) {
@@ -171,7 +191,12 @@ module.exports = createCoreController("api::hit.hit", ({ strapi }) => ({
         await strapi.entityService.update(
           "plugin::users-permissions.user",
           hit.user,
-          { data: { money: user.money + hit.reward } }
+          {
+            data: {
+              money: user.money + hit.reward,
+              totalMoney: user.totalMoney + hit.reward,
+            },
+          }
         );
       });
     }

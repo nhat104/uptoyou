@@ -65,7 +65,8 @@
     },
     "money": {
       "type": "biginteger",
-      "default": "0"
+      "default": "0",
+      "min": "0"
     },
     "jobs": {
       "type": "relation",
@@ -102,6 +103,12 @@
     },
     "phone": {
       "type": "string"
+    },
+    "totalMoney": {
+      "type": "biginteger",
+      "required": false,
+      "default": "0",
+      "min": "0"
     }
   }
 }

@@ -62,4 +62,36 @@ module.exports = {
       ctx.body = err;
     }
   },
+
+  statisticByWorker: async (ctx, next) => {
+    const { user } = ctx.state;
+    const hitsByWorker = await strapi.entityService.findMany("api::hit.hit", {
+      filters: {
+        user: user.id,
+      },
+    });
+
+    const finishedHits = hitsByWorker.filter(
+      (hit) => hit.status === "accepted" || hit.status === "rejected"
+    );
+    const acceptedHits = hitsByWorker.filter(
+      (hit) => hit.status === "accepted"
+    );
+    const pendingHits = hitsByWorker.filter(
+      (hit) => hit.status === "submitted"
+    );
+
+    const response = {
+      status: 200,
+      data: {
+        approvedRate: acceptedHits.length / finishedHits.length,
+        approved: acceptedHits.length,
+        pendingHIT: pendingHits.length,
+        rejected: finishedHits.length - acceptedHits.length,
+        availableEarn: user.money,
+        totalEarn: user.totalMoney,
+      },
+    };
+    return response;
+  },
 };

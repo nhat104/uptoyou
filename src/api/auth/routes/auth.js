@@ -18,5 +18,10 @@ module.exports = {
         middlewares: [],
       },
     },
+    {
+      method: "GET",
+      path: "/statistic-by-worker",
+      handler: "auth.statisticByWorker",
+    },
   ],
 };
